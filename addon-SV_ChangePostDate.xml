@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="SV_ChangePostDate" title="Change Post Date" version_string="1.0.0" version_id="10000" url="" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+  <admin_navigation/>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates/>
+  <admin_template_modifications/>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="load_class" execute_order="10" callback_class="SV_ChangePostDate_Listener" callback_method="load_class" active="1" hint="XenForo_Model_Post" description="XenForo_Model_Post"/>
+    <listener event_id="load_class" execute_order="10" callback_class="SV_ChangePostDate_Listener" callback_method="load_class" active="1" hint="XenForo_Model_InlineMod_Post" description="XenForo_Model_InlineMod_Post"/>
+    <listener event_id="load_class" execute_order="10" callback_class="SV_ChangePostDate_Listener" callback_method="load_class" active="1" hint="XenForo_ControllerPublic_InlineMod_Post" description="XenForo_ControllerPublic_InlineMod_Post"/>
+  </code_event_listeners>
+  <cron/>
+  <email_templates/>
+  <email_template_modifications/>
+  <optiongroups/>
+  <permissions>
+    <permission_groups/>
+    <permissions>
+      <permission permission_group_id="forum" permission_id="SV_ChangePostDate" permission_type="flag" depend_permission_id="editAnyPost" default_value="unset" interface_group_id="forumModeratorPermissions" display_order="204"/>
+    </permissions>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="moderator_log_post_change_date" version_id="10000" version_string="1.0.0"><![CDATA[Post date changed from {old_date} to {new_date}]]]></phrase>
+    <phrase title="permission_forum_SV_ChangePostDate" version_id="10000" version_string="1.0.0"><![CDATA[Change Post Date]]></phrase>
+    <phrase title="sv_change_date_for_post" version_id="10000" version_string="1.0.0"><![CDATA[Change Date for Post #{number}]]></phrase>
+    <phrase title="sv_change_post_date" version_id="10000" version_string="1.0.0"><![CDATA[Change Post Date]]></phrase>
+    <phrase title="sv_new_date" version_id="10000" version_string="1.0.0"><![CDATA[New Date]]></phrase>
+    <phrase title="sv_please_enter_valid_date_format" version_id="10000" version_string="1.0.0"><![CDATA[Please enter a valid date format]]></phrase>
+    <phrase title="sv_please_select_at_most_one_post" version_id="10000" version_string="1.0.0"><![CDATA[Please select at most one post.]]></phrase>
+  </phrases>
+  <route_prefixes/>
+  <style_properties/>
+  <templates>
+    <template title="inline_mod_post_datechange" version_id="10000" version_string="1.0.0"><![CDATA[<xen:title>{xen:phrase sv_change_date_for_post, 'number={xen:calc '{$post.position} + 1'}'}</xen:title>
+<form action="{xen:link 'inline-mod/post/datechange'}" method="post" class="xenForm formOverlay">
+    <fieldset>
+        <dl class="ctrlUnit">
+            <dt><label>{xen:phrase sv_new_date}:</label></dt>
+            <dd><input type="text" name="datechange" value="{$post.formatted_date}" class="textCtrl" /></dd>
+        </dl>
+        <dl class="ctrlUnit submitUnit">
+            <dt></dt>
+            <dd><input type="submit" value="{xen:phrase sv_change_post_date}" class="button primary" accesskey="s" /></dd>
+        </dl>
+    </fieldset>
+
+    <xen:foreach loop="$postIds" value="$postId">
+        <input type="hidden" name="posts[]" value="{$postId}" />
+    </xen:foreach>
+
+    <input type="hidden" name="_xfConfirm" value="1" />
+    <input type="hidden" name="redirect" value="{$redirect}" />
+    <input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
+</form>]]></template>
+  </templates>
+  <public_template_modifications>
+    <modification template="inline_mod_controls_post" modification_key="sv_changepost_date_inline_mod_controls_post" description="" execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#(\s*)(<option value="deselect)#si]]></find>
+      <replace><![CDATA[$1<xen:if is="{$inlineModOptions.datechange}"><option value="datechange">{xen:phrase sv_change_post_date}...</option></xen:if>
+$1$2]]></replace>
+    </modification>
+  </public_template_modifications>
+  <bb_code_media_sites/>
+  <bb_codes/>
+</addon>
