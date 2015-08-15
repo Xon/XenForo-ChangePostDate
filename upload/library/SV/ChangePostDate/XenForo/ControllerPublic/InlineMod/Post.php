@@ -29,10 +29,11 @@ class SV_ChangePostDate_XenForo_ControllerPublic_InlineMod_Post extends XFCP_SV_
         {
             throw $this->getErrorOrNoPermissionResponseException($errorPhraseKey);
         }
-        $redirect = $this->getDynamicRedirect();
 
         if (!$postIds)
         {
+            $redirect = $this->getDynamicRedirect();
+
             return $this->responseRedirect(
                 XenForo_ControllerResponse_Redirect::SUCCESS,
                 $redirect
@@ -53,9 +54,12 @@ class SV_ChangePostDate_XenForo_ControllerPublic_InlineMod_Post extends XFCP_SV_
             $post['formatted_date'] = $dt->format('c');
         }
 
+        $post = reset($posts);
+        $redirect = XenForo_Link::buildPublicLink('posts', $post);
+
         $viewParams = array(
             'postIds' => $postIds,
-            'post' => reset($posts),
+            'post' => $post,
             'postCount' => count($postIds),
             'redirect' => $redirect,
         );
