@@ -113,10 +113,10 @@ class SV_ChangePostDate_XenForo_Model_InlineMod_Post extends XFCP_SV_ChangePostD
 
             XenForo_Db::commit();
             
-            // trigger re-indexing
-            $dw = XenForo_DataWriter::create("XenForo_DataWriter_Discussion_Thread");
-            $dw->setExistingData($thread_id);
-            $dw->sv_InsertIntoSearchIndex();
+            // trigger re-indexing. A Design flaw in XenForo makes this very slow, so kick it to a deferred task.
+            XenForo_Application::defer('SV_ChangePostDate_Deferred_SearchIndex', array(
+                'threadId' => $thread_id,
+            ), 'thread_index_' . $thread_id);
         }
 
         return true;
