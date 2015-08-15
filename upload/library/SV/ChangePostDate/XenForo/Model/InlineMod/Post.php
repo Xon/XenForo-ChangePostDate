@@ -66,7 +66,7 @@ class SV_ChangePostDate_XenForo_Model_InlineMod_Post extends XFCP_SV_ChangePostD
                 SELECT position
                 FROM xf_post
                 WHERE thread_id = ? and post_date < ?
-                ORRDER BY post_date DESC
+                ORDER BY post_date DESC
                 LIMIT 1
             ', array($thread_id, $newPostDate));
             if (empty($dest_position))
@@ -114,6 +114,9 @@ class SV_ChangePostDate_XenForo_Model_InlineMod_Post extends XFCP_SV_ChangePostD
             XenForo_Db::commit();
             
             // trigger re-indexing
+            $dw = XenForo_DataWriter::create("XenForo_DataWriter_Discussion_Thread");
+            $dw->setExistingData($thread_id);
+            $dw->sv_InsertIntoSearchIndex();
         }
 
         return true;
