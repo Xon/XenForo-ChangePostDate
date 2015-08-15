@@ -64,10 +64,10 @@ class SV_ChangePostDate_XenForo_Model_InlineMod_Post extends XFCP_SV_ChangePostD
             $src_position = $post['position'];
             $dest_position = $db->fetchOne('
                 SELECT position
-                from xf_post
-                where thread_id = ? and post_date < ?
-                order by post_date desc
-                limit 1
+                FROM xf_post
+                WHERE thread_id = ? and post_date < ?
+                ORRDER BY post_date DESC
+                LIMIT 1
             ', array($thread_id, $newPostDate));
             if (empty($dest_position))
             {
@@ -79,47 +79,36 @@ class SV_ChangePostDate_XenForo_Model_InlineMod_Post extends XFCP_SV_ChangePostD
                 if ($dest_position > $src_position)
                 {
                     $db->query('
-                        update xf_post
-                        set position = position + 1
-                        where thread_id = ? and position >= ? and position < ?
+                        UPDATE xf_post
+                        SET position = position + 1
+                        WHERE thread_id = ? and position >= ? and position < ?
                     ', array($thread_id, $dest_position, $src_position));
                 }
                 else
                 {
                     $db->query('
-                        update xf_post
-                        set position = position - 1
-                        where thread_id = ? and position >= ? and position < ?
+                        UPDATE xf_post
+                        SET position = position - 1
+                        WHERE thread_id = ? and position >= ? and position < ?
                     ', array($thread_id, $src_position, $dest_position));
                 }
             }
 
             $db->query('
-                update xf_post
-                set position = ?, post_date = ?
-                where post_id = ?
+                UPDATE xf_post
+                SET position = ?, post_date = ?
+                WHERE post_id = ?
             ', array($dest_position, $newPostDate, $post['post_id']));
             
             if ($dest_position != $src_position)
             {
                 // update thread metadata
-                if (!$dest_position)
-                {
-                    $db->query('
-                        update xf_thread
-                        set post_date = ?, first_post_id = ?, user_id = ?, username = ?
-                        where thread_id = ?
-                    ', array($newPostDate, $post['likes'], $post['post_id'], $post['user_id'], $post['username'], $thread_id));
-                }
-                else if (!$src_position)
-                {
-                    $db->query('
-                        update xf_thread
-                        set post_date = post.post_date, first_post_id = post.post_id, user_id = post.user_id, username = post.username
-                        join xf_post as post on post.thread_id = xf_thread.thread_id and post.position = 0
-                        where thread_id = ?
-                    ', array(...  , $thread_id));
-                }
+                $db->query('
+                    UPDATE xf_thread AS thread
+                    JOIN xf_post AS post ON post.thread_id = thread.thread_id and post.position = 0
+                    SET thread.post_date = post.post_date, thread.first_post_id = post.post_id, thread.user_id = post.user_id, thread.username = post.username
+                    WHERE thread.thread_id =  ?
+                ', array($thread_id));
             }
 
             XenForo_Db::commit();
