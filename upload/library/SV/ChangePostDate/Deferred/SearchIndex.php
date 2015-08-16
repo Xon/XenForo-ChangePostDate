@@ -10,7 +10,7 @@ class SV_ChangePostDate_Deferred_SearchIndex extends XenForo_Deferred_Abstract
         }
 
         $dw = XenForo_DataWriter::create("XenForo_DataWriter_Discussion_Thread");
-        $dw->setExistingData($thread_id);
+        $dw->setExistingData($data['threadId']);
         $dw->sv_InsertIntoSearchIndex();
 
 
