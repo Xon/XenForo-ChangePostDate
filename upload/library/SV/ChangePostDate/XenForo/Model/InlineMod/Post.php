@@ -73,10 +73,9 @@ class SV_ChangePostDate_XenForo_Model_InlineMod_Post extends XFCP_SV_ChangePostD
             {
                 $dest_position = 0;
             }
-
             if ($dest_position != $src_position)
             {
-                if ($dest_position > $src_position)
+                if ($dest_position < $src_position)
                 {
                     $db->query('
                         UPDATE xf_post
@@ -89,7 +88,7 @@ class SV_ChangePostDate_XenForo_Model_InlineMod_Post extends XFCP_SV_ChangePostD
                     $db->query('
                         UPDATE xf_post
                         SET position = position - 1
-                        WHERE thread_id = ? and position >= ? and position < ?
+                        WHERE thread_id = ? and position > ? and position <= ?
                     ', array($thread_id, $src_position, $dest_position));
                 }
             }
@@ -99,23 +98,31 @@ class SV_ChangePostDate_XenForo_Model_InlineMod_Post extends XFCP_SV_ChangePostD
                 SET position = ?, post_date = ?
                 WHERE post_id = ?
             ', array($dest_position, $newPostDate, $post['post_id']));
-            
-            if ($dest_position != $src_position)
-            {
-                // update thread metadata
-                $db->query('
-                    UPDATE xf_thread AS thread
-                    JOIN xf_post AS post ON post.thread_id = thread.thread_id and post.position = 0
-                    SET thread.post_date = post.post_date, thread.first_post_id = post.post_id, thread.user_id = post.user_id, thread.username = post.username
-                    WHERE thread.thread_id =  ?
-                ', array($thread_id));
-            }
+
+            // update thread metadata
+            $db->query('
+                UPDATE xf_thread AS thread
+                JOIN xf_post AS post ON post.thread_id = thread.thread_id and post.position = 0
+                SET thread.post_date = post.post_date, thread.first_post_id = post.post_id, thread.user_id = post.user_id, thread.username = post.username
+                WHERE thread.thread_id =  ?
+            ', array($thread_id));
+
+            // verify that the thread doesn't require re-indexing.
+            $reindexThread = $db->fetchOne("
+                SELECT 1
+                FROM xf_post
+                WHERE thread_id = ? and message_state = 'visible'
+                group by position
+                having count(*) >= 2
+                limit 1
+            ", array($thread_id));
 
             XenForo_Db::commit();
-            
+
             // trigger re-indexing. A Design flaw in XenForo makes this very slow, so kick it to a deferred task.
             XenForo_Application::defer('SV_ChangePostDate_Deferred_SearchIndex', array(
                 'threadId' => $thread_id,
+                'reindexThread' => (bool)$reindexThread,
             ), 'thread_index_' . $thread_id);
         }
 
