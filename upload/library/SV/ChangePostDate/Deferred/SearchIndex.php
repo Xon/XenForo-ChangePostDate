@@ -9,12 +9,15 @@ class SV_ChangePostDate_Deferred_SearchIndex extends XenForo_Deferred_Abstract
             return false;
         }
 
-        $dw = XenForo_DataWriter::create("XenForo_DataWriter_Discussion_Thread");
-        $dw->setExistingData($data['threadId']);
+        // if re-indexing is required, then the datawriter requires reloading to pickup the potentially new 1st post
         if(!empty($data['reindexThread']))
         {
+            $dw = XenForo_DataWriter::create("XenForo_DataWriter_Discussion_Thread");
+            $dw->setExistingData($data['threadId']);
             $dw->rebuildDiscussion();
         }
+        $dw = XenForo_DataWriter::create("XenForo_DataWriter_Discussion_Thread");
+        $dw->setExistingData($data['threadId']);
         $dw->sv_updateSearchIndexTitle();
 
         return false;
