@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="SV_ChangePostDate" title="Change Post Date" version_string="1.0.2a" version_id="100021" url="" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+<addon addon_id="SV_ChangePostDate" title="Change Post Date" version_string="1.0.1" version_id="10001" url="" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
@@ -35,7 +35,11 @@
   <route_prefixes/>
   <style_properties/>
   <templates>
-    <template title="inline_mod_post_datechange" version_id="10000" version_string="1.0.0"><![CDATA[<xen:title>{xen:phrase sv_change_date_for_post, 'number={xen:calc '{$post.position} + 1'}'}</xen:title>
+    <template title="inline_mod_post_datechange" version_id="10001" version_string="1.0.1"><![CDATA[<xen:require css="inline_mod_post_datechange.css" />
+<xen:require js="js/jquery.timepicker/jquery.timepicker.min.js" />
+<xen:require js="js/jquery.timepicker/datepair.min.js" />
+
+<xen:title>{xen:phrase sv_change_date_for_post, 'number={xen:calc '{$post.position} + 1'}'}</xen:title>
 <form action="{xen:link 'inline-mod/post/datechange'}" method="post" class="xenForm formOverlay">
     <fieldset>
         <dl class="ctrlUnit">
@@ -56,6 +60,79 @@
     <input type="hidden" name="redirect" value="{$redirect}" />
     <input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
 </form>]]></template>
+    <template title="inline_mod_post_datechange.css" version_id="10001" version_string="1.0.1"><![CDATA[.ui-timepicker-wrapper {
+	overflow-y: auto;
+	height: 150px;
+	width: 6.5em;
+	background: #fff;
+	border: 1px solid #ddd;
+	-webkit-box-shadow:0 5px 10px rgba(0,0,0,0.2);
+	-moz-box-shadow:0 5px 10px rgba(0,0,0,0.2);
+	box-shadow:0 5px 10px rgba(0,0,0,0.2);
+	outline: none;
+	z-index: 10001;
+	margin: 0;
+}
+
+.ui-timepicker-wrapper.ui-timepicker-with-duration {
+	width: 13em;
+}
+
+.ui-timepicker-wrapper.ui-timepicker-with-duration.ui-timepicker-step-30,
+.ui-timepicker-wrapper.ui-timepicker-with-duration.ui-timepicker-step-60 {
+	width: 11em;
+}
+
+.ui-timepicker-list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.ui-timepicker-duration {
+	margin-left: 5px; color: #888;
+}
+
+.ui-timepicker-list:hover .ui-timepicker-duration {
+	color: #888;
+}
+
+.ui-timepicker-list li {
+	padding: 3px 0 3px 5px;
+	cursor: pointer;
+	white-space: nowrap;
+	color: #000;
+	list-style: none;
+	margin: 0;
+}
+
+.ui-timepicker-list:hover .ui-timepicker-selected {
+	background: #fff; color: #000;
+}
+
+li.ui-timepicker-selected,
+.ui-timepicker-list li:hover,
+.ui-timepicker-list .ui-timepicker-selected:hover {
+	background: #1980EC; color: #fff;
+}
+
+li.ui-timepicker-selected .ui-timepicker-duration,
+.ui-timepicker-list li:hover .ui-timepicker-duration {
+	color: #ccc;
+}
+
+.ui-timepicker-list li.ui-timepicker-disabled,
+.ui-timepicker-list li.ui-timepicker-disabled:hover,
+.ui-timepicker-list li.ui-timepicker-selected.ui-timepicker-disabled {
+	color: #888;
+	cursor: default;
+}
+
+.ui-timepicker-list li.ui-timepicker-disabled:hover,
+.ui-timepicker-list li.ui-timepicker-selected.ui-timepicker-disabled {
+	background: #f2f2f2;
+}
+]]></template>
   </templates>
   <public_template_modifications>
     <modification template="inline_mod_controls_post" modification_key="sv_changepost_date_inline_mod_controls_post" description="" execution_order="10" enabled="1" action="preg_replace">
